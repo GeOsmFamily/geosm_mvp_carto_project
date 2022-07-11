@@ -4,6 +4,7 @@
     "target": "ES2020", // which level of JS support to target
     "module": "CommonJS", // which system for the program AMD, UMD, System, CommonJS
     "esModuleInterop": true, // whether to allow import/export of non-ES modules
+    "resolveJsonModule": true, // whether to allow import/export of JSON modules
 
     // Recommended: Compiler complains about expressions implicitly typed as 'any'
     "noImplicitAny": true

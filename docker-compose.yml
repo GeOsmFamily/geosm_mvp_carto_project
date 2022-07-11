@@ -1,0 +1,34 @@
+version: "3"
+services:
+  geosm_carto:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    image: geosm_carto
+    container_name: geosm_carto
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - 'carto-data:/var/www/html'
+    ports:
+      - "9090:80"
+  
+  geosm_qgis:
+    image: 3liz/qgis-map-server:3.24
+    container_name: geosm_qgis
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - /qgis:/projects
+    environment:
+      - QGSRV_SERVER_WORKERS=2
+      - QGSRV_LOGGING_LEVEL=DEBUG
+      - QGSRV_CACHE_ROOTDIR=/projects
+      - QGSRV_CACHE_SIZE=10
+    ports:
+      - "9091:8080"
+
+volumes:
+    carto-data:
+        driver: local
+    
