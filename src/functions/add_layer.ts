@@ -1,5 +1,5 @@
 import { PythonShell } from 'python-shell';
-var result: any;
+
 function addLayerOsm(
   qgis_project_name: string,
   path_qgis: string,
@@ -18,7 +18,7 @@ function addLayerOsm(
         mode: 'text',
         pythonPath: 'python3',
         pythonOptions: ['-u'],
-        scriptPath: 'src/scripts',
+        scriptPath: '/var/www/html/src/scripts',
         args: [
           qgis_project_name,
           path_qgis,
@@ -38,7 +38,7 @@ function addLayerOsm(
         mode: 'text',
         pythonPath: 'python3',
         pythonOptions: ['-u'],
-        scriptPath: 'src/scripts',
+        scriptPath: '/var/www/html/src/scripts',
         args: [
           qgis_project_name,
           path_qgis,
@@ -71,7 +71,7 @@ function addOtherLayer(
         mode: 'text',
         pythonPath: 'python3',
         pythonOptions: ['-u'],
-        scriptPath: 'src/scripts',
+        scriptPath: '/var/www/html/src/scripts',
         args: [
           qgis_project_name,
           path_qgis,
@@ -91,7 +91,7 @@ function addOtherLayer(
         mode: 'text',
         pythonPath: 'python3',
         pythonOptions: ['-u'],
-        scriptPath: 'src/scripts',
+        scriptPath: '/var/www/html/src/scripts',
         args: [
           qgis_project_name,
           path_qgis,

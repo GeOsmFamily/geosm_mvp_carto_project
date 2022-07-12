@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-      - 'carto-data:/var/www/html'
+      - ./:/var/www/html
     ports:
       - "9090:80"
   
@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-      - /qgis:/projects
+      - /src/qgis:/projects
     environment:
       - QGSRV_SERVER_WORKERS=2
       - QGSRV_LOGGING_LEVEL=DEBUG
@@ -27,8 +27,4 @@ services:
       - QGSRV_CACHE_SIZE=10
     ports:
       - "9091:8080"
-
-volumes:
-    carto-data:
-        driver: local
     
