@@ -192,6 +192,13 @@ def addlayer_with_icone(layer, type_couche, project, icone, couleur_remplissage)
             print("couche existente dans le projet")
         else:
             project.addMapLayer(layer)
+
+            WFSLayers = project.readListEntry('WFSLayers', '')
+            b = list(WFSLayers)[0]
+
+            if layer.isValid():
+                b.append(u'%s' % layer.id())
+                project.writeEntry('WFSLayers', '',  b)
         return layer
 
 
@@ -205,6 +212,13 @@ def addlayer(layer, type_couche, project, qml_file):
             print("couche existente dans le projet")
         else:
             project.addMapLayer(layer)
+
+            WFSLayers = project.readListEntry('WFSLayers', '')
+            b = list(WFSLayers)[0]
+
+            if layer.isValid():
+                b.append(u'%s' % layer.id())
+                project.writeEntry('WFSLayers', '',  b)
         return layer
 
 
