@@ -264,6 +264,10 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
     layer = ""
     if(couche_path.endswith(".zip")):
 
+        shutil.move(couche_path, repertoire_sauvegarde +
+                                "/shapefile/")
+        filename = os.path.basename(couche_path)
+        couche_path=repertoire_sauvegarde +"/shapefile/"+filename
         layers = []
         with zipfile.ZipFile(couche_path) as z:
             for filename in z.namelist():
@@ -281,14 +285,17 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                     else:
                         layer = addlayer(
                             layer_load, type_couche, project, qml_file)
-                    filename = os.path.basename(couche_path)
+                   
 
-                    shutil.copy(couche_path, repertoire_sauvegarde +
-                                "/shapefile/"+filename)
+                    
                     layer.saveNamedStyle(
                         repertoire_sauvegarde+"/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".geojson")):
+        shutil.move(couche_path, repertoire_sauvegarde +"/geojson/")
+        filename = os.path.basename(couche_path)
+        couche_path=repertoire_sauvegarde +"/geojson/"+filename
+        
         layer = QgsVectorLayer(couche_path, layer_name, "ogr")
         if len(sys.argv) == 8:
             layer = addlayer_with_icone(
@@ -297,12 +304,15 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             layer = addlayer(layer, type_couche, project, qml_file)
 
         filename = os.path.basename(couche_path)
-        shutil.copy(couche_path, repertoire_sauvegarde+"/geojson/"+filename)
-
+        
         layer.saveNamedStyle(repertoire_sauvegarde +
                              "/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".kml")):
+
+        shutil.move(couche_path, repertoire_sauvegarde +"/kml/")
+        filename = os.path.basename(couche_path)
+        couche_path=repertoire_sauvegarde +"/kml/"+filename
 
         layer_load = QgsVectorLayer(couche_path, couche_prefix, "ogr")
         subLayers = layer_load.dataProvider().subLayers()
@@ -319,13 +329,16 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                 layer = addlayer(layer, type_couche, project, qml_file)
 
             filename = os.path.basename(couche_path)
-            shutil.copy(couche_path, repertoire_sauvegarde+"/kml/"+filename)
-
+           
             layer.saveNamedStyle(repertoire_sauvegarde +
                                  "/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".gpkg")):
-        gpkg_directory = create_directory(repertoire_sauvegarde, "gpkg")
+        shutil.move(couche_path, repertoire_sauvegarde +"/gpkg/")
+        filename = os.path.basename(couche_path)
+        couche_path=repertoire_sauvegarde +"/gpkg/"+filename
+       
+        
         gpkg_layers = [l.GetName() for l in ogr.Open(couche_path)]
         # append the layername part
         for item in gpkg_layers:
@@ -341,7 +354,7 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             else:
                 layer = addlayer(layer, type_couche, project, qml_file)
 
-            shutil.copy(couche_path, repertoire_sauvegarde+"/gpkg/"+filename)
+          
             layer.saveNamedStyle(repertoire_sauvegarde +
                                  "/styles/"+layer_name+".qml")
 
