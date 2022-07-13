@@ -81,13 +81,11 @@ def getLayerGeometry(layer, feature_name):
 
                 x = geom.asPolygon()
 
-                #print("Polygon: ", x, "Area: ", geom.area())
                 return "Polygon"
             else:
 
                 x = geom.asMultiPolygon()
 
-                #print("MultiPolygon: ", x, "Area: ", geom.area())
                 return "MultiPolygon"
             break
 
@@ -117,8 +115,7 @@ def setPointSymbology(layer, icone, couleur_remplissage):
     # symbol.changeSymbolLayer(0, symbolLayer)
 
     # class QgsPointClusterRenderer
-    print("Coucocu")
-    print(couleur_remplissage)
+
     color = QtGui.QColor(couleur_remplissage)
     # create svg marker symbol for the input layer
     svgStyle = {
@@ -219,28 +216,27 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
     filename = os.path.basename(couche_path)
 
     if(not os.path.exists(repertoire_sauvegarde+"/styles/")):
-        print("création du repertoire styles")
+
         os.mkdir(repertoire_sauvegarde+"/styles/")
 
     if(not os.path.exists(repertoire_sauvegarde+"/shapefile/")):
-        print("création du repertoire shapefile")
+
         os.mkdir(repertoire_sauvegarde+"/shapefile")
 
     if(not os.path.exists(repertoire_sauvegarde+"/kml/")):
-        print("création du repertoire kml")
+
         os.mkdir(repertoire_sauvegarde+"/kml/")
 
     if(not os.path.exists(repertoire_sauvegarde+"/geojson/")):
-        print("création du repertoire geojson")
+
         os.mkdir(repertoire_sauvegarde+"/geojson/")
 
     if(not os.path.exists(repertoire_sauvegarde+"/gpkg/")):
-        print("création du repertoire gpkg")
+
         os.mkdir(repertoire_sauvegarde+"/gpkg/")
 
     if(not os.path.exists(repertoire_sauvegarde+"/"+path_project+".qgs")):
-        print("crétion du projet qgis: " +
-              repertoire_sauvegarde+"/"+path_project+".qgs")
+
         open(repertoire_sauvegarde+"/"+path_project+".qgs", "w")
 
     couche_prefix, couche_suffix = os.path.splitext(couche_path)
@@ -253,8 +249,6 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
     project.read(repertoire_sauvegarde+"/"+path_project+".qgs")
     layer = ""
     if(couche_path.endswith(".zip")):
-        print("Traitement du shapefile")
-        print(couche_path)
 
         layers = []
         with zipfile.ZipFile(couche_path) as z:
@@ -267,7 +261,6 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
 
                     # set layer icons
 
-                    print("ajout de la couche " + layer_name+" au projet")
                     if len(sys.argv) == 8:
                         layer = addlayer_with_icone(
                             layer_load, type_couche, project, icone, couleur_remplissage)
@@ -276,17 +269,13 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                             layer_load, type_couche, project, qml_file)
                     filename = os.path.basename(couche_path)
 
-                    print("sauvegarde de la couche")
                     shutil.copy(couche_path, repertoire_sauvegarde +
                                 "/shapefile/"+filename)
-                    print("sauvegarde du style de la couche")
                     layer.saveNamedStyle(
                         repertoire_sauvegarde+"/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".geojson")):
-        print("Traitement du geojson")
         layer = QgsVectorLayer(couche_path, layer_name, "ogr")
-        print("ajout de la couche " + layer_name+" au projet")
         if len(sys.argv) == 8:
             layer = addlayer_with_icone(
                 layer, type_couche, project, icone, couleur_remplissage)
@@ -294,25 +283,21 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             layer = addlayer(layer, type_couche, project, qml_file)
 
         filename = os.path.basename(couche_path)
-        print("ajout de la couche " + layer_name+" au projet")
         shutil.copy(couche_path, repertoire_sauvegarde+"/geojson/"+filename)
-        print("sauvegarde du style de la couche")
+
         layer.saveNamedStyle(repertoire_sauvegarde +
                              "/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".kml")):
-        print("Traitement du kml")
 
         layer_load = QgsVectorLayer(couche_path, couche_prefix, "ogr")
         subLayers = layer_load.dataProvider().subLayers()
         for subLayer in subLayers:
             name = subLayer.split('!!::!!')[1]
-            print(name)
             uri = couche + "|layername="+layer_name
             # Create layer
             layer = QgsVectorLayer(uri, layer_name, 'ogr')
         # Add layer to map
-            print("ajout de la couche " + layer_name+" au projet")
             if len(sys.argv) == 8:
                 layer = addlayer_with_icone(
                     layer, type_couche, project, icone, couleur_remplissage)
@@ -320,15 +305,12 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                 layer = addlayer(layer, type_couche, project, qml_file)
 
             filename = os.path.basename(couche_path)
-            print("sauvegarde du style de la couche")
             shutil.copy(couche_path, repertoire_sauvegarde+"/kml/"+filename)
 
-            print("sauvegarde du style de la couche")
             layer.saveNamedStyle(repertoire_sauvegarde +
                                  "/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".gpkg")):
-        print("Traitement du gpkg")
         gpkg_directory = create_directory(repertoire_sauvegarde, "gpkg")
         gpkg_layers = [l.GetName() for l in ogr.Open(couche_path)]
         # append the layername part
@@ -339,26 +321,18 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             # e.g. gpkg_places_layer = "/usr/share/qgis/resources/data/world_map.gpkg|layername=countries"
 
             layer = QgsVectorLayer(layer1, layer_name, "ogr")
-            print("ajout de la couche " + layer_name+" au projet")
             if len(sys.argv) == 8:
                 layer = addlayer_with_icone(
                     layer, type_couche, project, icone, couleur_remplissage)
             else:
-                print("hi")
-                print(qml_file)
                 layer = addlayer(layer, type_couche, project, qml_file)
 
-            # getLayerGeometry(layer_to_add)
-            # count layer features
-            # print(layer.featureCount())
-            print("sauvegarde du style de la couche")
             shutil.copy(couche_path, repertoire_sauvegarde+"/gpkg/"+filename)
-            print("sauvegarde du style de la couche")
             layer.saveNamedStyle(repertoire_sauvegarde +
                                  "/styles/"+layer_name+".qml")
 
     else:
-        print("format de fichier non géré")
+        return json.dumps({"error": "format de fichier non géré"})
 
    # if(type_couche == "point"):
     extend = []
@@ -367,17 +341,16 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
     extend.append(extent.yMinimum())
     extend.append(extent.xMaximum())
     extend.append(extent.yMaximum())
-    print("création de la réponse json")
-    response = {"chemin_projet": repertoire_sauvegarde+"/"+path_project+".qgs",
+    response = {"path_project": repertoire_sauvegarde+"/"+path_project+".qgs",
                 "features": layer.featureCount(), "scr": layer.crs().authid(), "bbox": extend}
   #  else:
   #      response={"chemin_projet":repertoire_sauvegarde+"/"+path_project+".qgs","features":layer.featureCount(),"scr":layer.crs().description()}
     project.write()
     # Serializing json
-    json_object = json.dumps(response, indent=4)
-    print(json_object)
+   # json_object = json.dumps(response, indent=4)
+
     # print(response)
-    return json_object
+    return json.dumps(response)
 
 
 project = sys.argv[1]
@@ -385,22 +358,19 @@ repertoire_sauvegarde = sys.argv[2]
 couche = sys.argv[3]
 type_couche = sys.argv[4]
 layer_name = sys.argv[5]
-print(sys.argv[1:])
 if(len(sys.argv) == 8):
 
     icone = sys.argv[6]
     couleur_remplissage = sys.argv[7]
 
-    add_layer_to_project(project, repertoire_sauvegarde,
-                         couche, layer_name, type_couche)
+    print(add_layer_to_project(project, repertoire_sauvegarde,
+                               couche, layer_name, type_couche))
+
 
 elif(len(sys.argv) == 7):
     qml_file = sys.argv[6]
-    print(7)
-    print(qml_file)
-    add_layer_to_project(project, repertoire_sauvegarde,
-                         couche, layer_name, type_couche)
+    print(add_layer_to_project(project, repertoire_sauvegarde,
+                               couche, layer_name, type_couche))
 
 else:
-    print(len(sys.argv))
-    print("Nombre d'arguments insuffisant")
+    print(json.dumps({"error": "nombre d'arguments incorrect"}))

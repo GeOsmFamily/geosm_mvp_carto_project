@@ -4,17 +4,18 @@ import ogr2ogr from 'ogr2ogr';
 function create_gpkg(
   sql: string,
   instance: string,
-  thematique_name: string,
-    thematique_id: string,
+  couche_name: string,
+    couche_id: string,
   cb: (err: any, data: any) => void
 ) {
   var save_path =
+    '/var/www/html/src' +
     db.qgis['path'] +
     '/' +
     instance +
     '/' +
-    thematique_name +
-    thematique_id +
+    couche_name +
+    couche_id +
     '.gpkg';
 
    ogr2ogr(
@@ -31,14 +32,14 @@ function create_gpkg(
     {
         format: 'GPKG',
         destination: save_path,
-        timeout: 1800000,
+      timeout: 1800000,
       options: [
-        '--config',
-        'CPL_DEBUG',
-        'ON',
-        '-sql',
-        sql,
-        '-t_srs',
+        "--config",
+        "CPL_DEBUG",
+        "ON",
+        "-sql",
+        sql ,
+        "-t_srs",
           'EPSG:4326',
       ]
     }
