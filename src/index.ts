@@ -79,21 +79,11 @@ app.post('/addotherlayer', (req, res) => {
           error: err
         });
       } else {
-           fs.unlink(path_data, (err) => {
-             if (err) {
-               res.send({
-                 status: false,
-                 message: 'echec de suppression de la source',
-                 error: err
-               });
-             } else {
-               res.send({
-                 status: true,
-                 message: 'couche ajoutée',
-                 layer: JSON.parse(result[0])
-               });
-             }
-           });
+            res.send({
+              status: true,
+              message: 'couche ajoutée',
+              layer: JSON.parse(result[0])
+            });
       }
     }
   );
@@ -144,21 +134,11 @@ app.post('/creategpkg', (req, res) => {
               error: err
             });
           } else {
-               fs.unlink(save_path, (err) => {
-                 if (err) {
-                   res.send({
-                     status: false,
-                     message: 'echec de suppression de la source',
-                     error: err
-                   });
-                 } else {
-                   res.send({
-                     status: true,
-                     message: 'couche ajoutée',
-                     layer: JSON.parse(result[0])
-                   });
-                 }
-               });
+                res.send({
+                  status: true,
+                  message: 'couche ajoutée',
+                  layer: JSON.parse(result[0])
+                });
           }
         }
       );
