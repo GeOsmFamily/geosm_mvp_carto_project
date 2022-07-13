@@ -2,6 +2,7 @@ import express from 'express';
 import { addLayerOsm, addOtherLayer } from './functions/add_layer';
 import { create_gpkg } from './functions/create_gpkg';
 import db from '../env.json';
+import fs from 'fs';
 
 const app = express();
 import bodyParser from 'body-parser';
@@ -34,7 +35,18 @@ app.post('/addlayerosm', (req, res) => {
       if (err) {
         res.send({ "status": false, "message": "echec de l'ajout de la couche", "error": err });
       } else {
-        res.send({ "status": true, "message": "couche ajoutée", "layer": result[0] });
+        fs.unlink(gpkg_path, (err) => {
+          if (err) {
+            res.send({ "status": false, "message": "echec de suppression de la source", "error": err });
+          } else {
+             res.send({
+               status: true,
+               message: 'couche ajoutée',
+               layer: JSON.parse(result[0])
+             });
+          }
+        })
+       
       }
     }
   );
@@ -67,7 +79,21 @@ app.post('/addotherlayer', (req, res) => {
           error: err
         });
       } else {
-        res.send({ status: true, message: 'couche ajoutée', layer: result[0] });
+           fs.unlink(path_data, (err) => {
+             if (err) {
+               res.send({
+                 status: false,
+                 message: 'echec de suppression de la source',
+                 error: err
+               });
+             } else {
+               res.send({
+                 status: true,
+                 message: 'couche ajoutée',
+                 layer: JSON.parse(result[0])
+               });
+             }
+           });
       }
     }
   );
@@ -76,8 +102,8 @@ app.post('/addotherlayer', (req, res) => {
 app.post('/creategpkg', (req, res) => {
   var sql = req.body.sql;
   var instance = req.body.instance;
-  var thematique_name = req.body.thematique_name;
-  var thematique_id = req.body.thematique_id;
+  var couche_name = req.body.couche_name;
+  var couche_id = req.body.couche_id;
 
  var qgis_project_name = req.body.qgis_project_name;
  var path_qgis = req.body.path_qgis;
@@ -87,7 +113,7 @@ app.post('/creategpkg', (req, res) => {
  var color = req.body.color;
  var path_qml = req.body.path_qml;
 
-  create_gpkg(sql, instance, thematique_name, thematique_id, function (err, data) {
+  create_gpkg(sql, instance, couche_name, couche_id, function (err, data) {
     if (err) {
       console.log(err);
       res.send({ "status": false, "message": "echec de la création du gpkg", "error": err });
@@ -98,8 +124,8 @@ app.post('/creategpkg', (req, res) => {
          '/' +
          instance +
          '/' +
-         thematique_name +
-         thematique_id +
+         couche_name +
+         couche_id +
          '.gpkg';
       addLayerOsm(
         qgis_project_name,
@@ -118,11 +144,21 @@ app.post('/creategpkg', (req, res) => {
               error: err
             });
           } else {
-            res.send({
-              status: true,
-              message: 'couche ajoutée',
-              layer: result[0],
-            });
+               fs.unlink(save_path, (err) => {
+                 if (err) {
+                   res.send({
+                     status: false,
+                     message: 'echec de suppression de la source',
+                     error: err
+                   });
+                 } else {
+                   res.send({
+                     status: true,
+                     message: 'couche ajoutée',
+                     layer: JSON.parse(result[0])
+                   });
+                 }
+               });
           }
         }
       );

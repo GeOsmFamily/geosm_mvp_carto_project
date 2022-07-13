@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-      - /src/qgis:/projects
+      - ./src/qgis:/projects
     environment:
       - QGSRV_SERVER_WORKERS=2
       - QGSRV_LOGGING_LEVEL=DEBUG
