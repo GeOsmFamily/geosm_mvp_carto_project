@@ -14,7 +14,7 @@ services:
       - "9090:80"
   
   geosm_qgis:
-    image: 3liz/qgis-map-server:3.24
+    image: 3liz/qgis-map-server:3.22
     container_name: geosm_qgis
     restart: unless-stopped
     tty: true
