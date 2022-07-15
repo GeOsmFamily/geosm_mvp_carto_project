@@ -128,6 +128,7 @@ app.post('/creategpkg', (req, res) => {
         path_qml,
         function (err, result) {
           if (err) {
+            console.log(err);
             res.send({
               status: false,
               message: "echec de l'ajout de la couche",
