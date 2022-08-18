@@ -6,7 +6,7 @@
 $ git clone https://github.com/GeOsmFamily/geosm_mvp_carto_project.git
 $ cd geosm_mvp_carto_project
 $ docker-compose up -d
-$ docker exec -it geosm_carto bash
+$ docker exec -it geosm_carto_mvp bash
 $ cp env.example.json env.json
 ```
 

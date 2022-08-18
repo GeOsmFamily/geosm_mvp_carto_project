@@ -1,11 +1,11 @@
 version: "3"
 services:
-  geosm_carto:
+  geosm_carto_mvp:
     build:
       context: .
       dockerfile: .docker/Dockerfile
-    image: geosm_carto
-    container_name: geosm_carto
+    image: geosm_carto_mvp
+    container_name: geosm_carto_mvp
     restart: unless-stopped
     tty: true
     volumes:
