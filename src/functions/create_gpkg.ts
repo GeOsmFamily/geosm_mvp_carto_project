@@ -8,7 +8,7 @@ function create_gpkg(
     couche_id: string,
   cb: (err: any, data: any) => void
 ) {
-  var save_path =
+  let save_path =
     '/var/www/html/src' +
     db.qgis['path'] +
     '/' +
@@ -19,31 +19,36 @@ function create_gpkg(
     '.gpkg';
 
    ogr2ogr(
-    'PG:host=' +
-      db.database_osm['host'] +
-      ' port=' +
-      db.database_osm['port'] +
-      ' dbname=' +
-      db.database_osm['dbname'] +
-      ' user=' +
-      db.database_osm['user'] +
-      ' password=' +
-      db.database_osm['password'],
-    {
-        format: 'GPKG',
-        destination: save_path,
-      timeout: 1800000,
-      options: [
-        "--config",
-        "CPL_DEBUG",
-        "ON",
-        "-sql",
-        sql ,
-        "-t_srs",
-          'EPSG:4326',
-      ]
-    }
-  ).exec(cb);
+     'PG:host=' +
+       //@ts-ignore
+       db[instance].database_osm['host'] +
+       ' port=' +
+       //@ts-ignore
+       db[instance].database_osm['port'] +
+       ' dbname=' +
+       //@ts-ignore
+       db[instance].database_osm['dbname'] +
+       ' user=' +
+       //@ts-ignore
+       db[instance].database_osm['user'] +
+       ' password=' +
+       //@ts-ignore
+       db[instance].database_osm['password'],
+     {
+       format: 'GPKG',
+       destination: save_path,
+       timeout: 1800000,
+       options: [
+         '--config',
+         'CPL_DEBUG',
+         'ON',
+         '-sql',
+         sql,
+         '-t_srs',
+         'EPSG:4326'
+       ]
+     }
+   ).exec(cb);
 }
 
 export { create_gpkg };
