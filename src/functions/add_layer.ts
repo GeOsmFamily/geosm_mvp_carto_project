@@ -6,10 +6,10 @@ function addLayerOsm(
   gpkg_path: string,
   geometry: string,
   identifiant: string,
+  cb: (err: any, result: any) => void,
   path_logo: string = null,
   color: string = null,
-  path_qml: string = null,
-  cb: (err:any, result: any) => void
+  path_qml: string = null
 ) {
   if (color !== null) {
     PythonShell.run(
@@ -59,10 +59,10 @@ function addOtherLayer(
   path_data: string,
   geometry: string,
   identifiant: string,
+  cb: (err: any, result: any) => void,
   path_logo: string = null,
   color: string = null,
-  path_qml: string = null,
-  cb: (err:any, result: any) => void
+  path_qml: string = null
 ) {
   if (color !== null) {
     PythonShell.run(
