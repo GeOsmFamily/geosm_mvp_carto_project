@@ -20,93 +20,6 @@ from qgis.core import QgsVectorFileWriter
 from PIL import ImageColor
 
 
-def create_directory(parent_dir, directory):
-    path = os.path.join(parent_dir, directory)
-
-
-def getLayerGeometry(layer, feature_name):
-
-    features = layer.getFeatures()
-
-    for feature in features:
-
-        # retrieve every feature with its geometry and attributes
-
-        #print("Feature ID: ", feature.id())
-
-        # fetch geometry
-
-        # show some information about the feature geometry
-
-        geom = feature.geometry()
-
-        geomSingleType = QgsWkbTypes.isSingleType(geom.wkbType())
-
-        if geom.type() == QgsWkbTypes.PointGeometry:
-
-            # the geometry type can be of single or multi type
-
-            if geomSingleType:
-
-                x = geom.asPoint()
-
-                return "Point"
-
-            else:
-                x = geom.asMultiPoint()
-
-                return "MultiPoint"
-            break
-
-        elif geom.type() == QgsWkbTypes.LineGeometry:
-
-            if geomSingleType:
-
-                x = geom.asPolyline()
-
-                #print("Line: ", x, "length: ", geom.length())
-                return "Line"
-
-            else:
-
-                x = geom.asMultiPolyline()
-
-                #print("MultiLine: ", x, "length: ", geom.length())
-                return "MultiLine"
-            break
-
-        elif geom.type() == QgsWkbTypes.PolygonGeometry:
-
-            if geomSingleType:
-
-                x = geom.asPolygon()
-
-                return "Polygon"
-            else:
-
-                x = geom.asMultiPolygon()
-
-                return "MultiPolygon"
-            break
-
-        else:
-
-            print("Unknown or invalid geometry")
-
-            # fetch attributes
-
-            attrs = feature.attributes()
-
-            # attrs is a list. It contains all the attribute values of this feature
-
-            print(attrs)
-
-            # for this test only print the first feature
-
-            break
-
-# Point symbology
-
 
 def setPointSymbology(layer, icone, couleur_remplissage):
     symbolLayer = QgsSvgMarkerSymbolLayer(icone, 10)
@@ -189,7 +102,7 @@ def addlayer_with_icone(layer, type_couche, project, icone, couleur_remplissage)
     else:
         layer = setPointSymbology(layer, icone, couleur_remplissage)
         if(project.mapLayersByName(layer.name())):
-            print("couche existente dans le projet")
+            print(json.dumps({"error": "Couche existante dans le projet"}))
         else:
             project.addMapLayer(layer)
 
@@ -204,12 +117,12 @@ def addlayer_with_icone(layer, type_couche, project, icone, couleur_remplissage)
 
 def addlayer(layer, type_couche, project, qml_file):
     if not layer.isValid():
-        print("Layer failed to load!")
+        print(json.dumps({"error": "Erreur de chargement de la couche"}))
     else:
         layer.loadNamedStyle(qml_file)
 
         if(project.mapLayersByName(layer.name())):
-            print("couche existente dans le projet")
+            print(json.dumps({"error": "Couche existante dans le projet"}))
         else:
             project.addMapLayer(layer)
 
@@ -228,6 +141,10 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
 
     #layername = sys.argv[4]
     filename = os.path.basename(couche_path)
+
+    if(not os.path.exists(repertoire_sauvegarde+"/icons/")):
+
+        os.mkdir(repertoire_sauvegarde+"/icons/")
 
     if(not os.path.exists(repertoire_sauvegarde+"/styles/")):
 
@@ -262,6 +179,10 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
     project = QgsProject()
     project.read(repertoire_sauvegarde+"/"+path_project+".qgs")
     layer = ""
+
+    shutil.copy(icone, repertoire_sauvegarde +"/icons/")
+    iconname = os.path.basename(icone)
+    icon_path = "./icons/"+iconname
     if(couche_path.endswith(".zip")):
 
         shutil.move(couche_path, repertoire_sauvegarde +
@@ -280,8 +201,9 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                     # set layer icons
 
                     if len(sys.argv) == 8:
+                        
                         layer = addlayer_with_icone(
-                            layer_load, type_couche, project, icone, couleur_remplissage)
+                            layer_load, type_couche, project, icon_path, couleur_remplissage)
                     else:
                         layer = addlayer(
                             layer_load, type_couche, project, qml_file)
@@ -297,7 +219,7 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
         layer = QgsVectorLayer(couche_path, layer_name, "ogr")
         if len(sys.argv) == 8:
             layer = addlayer_with_icone(
-                layer, type_couche, project, icone, couleur_remplissage)
+                layer, type_couche, project, icon_path, couleur_remplissage)
         else:
             layer = addlayer(layer, type_couche, project, qml_file)
 
@@ -322,7 +244,7 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
         # Add layer to map
             if len(sys.argv) == 8:
                 layer = addlayer_with_icone(
-                    layer, type_couche, project, icone, couleur_remplissage)
+                    layer, type_couche, project, icon_path, couleur_remplissage)
             else:
                 layer = addlayer(layer, type_couche, project, qml_file)
 
@@ -347,7 +269,7 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             layer = QgsVectorLayer(layer1, layer_name, "ogr")
             if len(sys.argv) == 8:
                 layer = addlayer_with_icone(
-                    layer, type_couche, project, icone, couleur_remplissage)
+                    layer, type_couche, project, icon_path, couleur_remplissage)
             else:
                 layer = addlayer(layer, type_couche, project, qml_file)
 
