@@ -211,7 +211,7 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                         
                         icone_path =  path_icone(repertoire_sauvegarde,icone)
                         layer = addlayer_with_icone(
-                            layer_load, type_couche, project, icone_path, couleur_remplissage)
+                            layer_load, project, icone_path, couleur_remplissage)
                     else:
                         layer = addlayer(
                             layer_load,project, qml_file)
