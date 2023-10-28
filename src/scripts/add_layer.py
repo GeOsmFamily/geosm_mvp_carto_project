@@ -98,7 +98,7 @@ def setPointSymbology(layer, icone, couleur_remplissage):
 def addlayer_with_icone(layer,project, icone, couleur_remplissage):
 
     if not layer.isValid():
-        print("Layer failed to load!")
+        print(json.dumps({"error": "Invalid Layer"}))
     else:
         layer = setPointSymbology(layer, icone, couleur_remplissage)
         if(project.mapLayersByName(layer.name())):
@@ -137,9 +137,7 @@ def addlayer(layer,project,qml_file):
 def path_icone(repertoire_sauvegarde,icone):
    
     filename = os.path.basename(icone)
-    print("hiiii "+icone)
     icone_path = repertoire_sauvegarde+"/icons/"+filename
-    print("hi "+ icone_path)
     return icone_path
 
 def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer_name, type_couche,icone=""):
@@ -190,7 +188,6 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
 
    
     if icone != "":
-        print(icone+"jjj")
         shutil.move(icone,repertoire_sauvegarde +"/icons/")
 
     if(couche_path.endswith(".zip")):
@@ -218,7 +215,6 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                     else:
                         layer = addlayer(
                             layer_load,project, qml_file)
-                        print("herrre")
 
                     layer.saveNamedStyle(
                         repertoire_sauvegarde+"/styles/"+layer_name+".qml")
@@ -235,7 +231,6 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
                 layer, project, icone_path, couleur_remplissage)
         else:
             layer = addlayer(layer, project, qml_file)
-            print("fgggggggggg")
         filename = os.path.basename(couche_path)
 
         layer.saveNamedStyle(repertoire_sauvegarde +
@@ -321,7 +316,6 @@ layer_name = sys.argv[5]
 if(len(sys.argv) == 8):
 
     icone = sys.argv[6]
-    print(icone)
     couleur_remplissage = sys.argv[7]
 
     print(add_layer_to_project(project, repertoire_sauvegarde,
