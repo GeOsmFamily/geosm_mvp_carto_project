@@ -95,7 +95,7 @@ def setPointSymbology(layer, icone, couleur_remplissage):
     return layer
 
 
-def addlayer_with_icone(layer, type_couche, project, icone, couleur_remplissage):
+def addlayer_with_icone(layer,project, icone, couleur_remplissage):
 
     if not layer.isValid():
         print("Layer failed to load!")
@@ -115,7 +115,7 @@ def addlayer_with_icone(layer, type_couche, project, icone, couleur_remplissage)
         return layer
 
 
-def addlayer(layer, type_couche, project, qml_file):
+def addlayer(layer,project,qml_file):
     if not layer.isValid():
         print(json.dumps({"error": "Erreur de chargement de la couche"}))
     else:
@@ -134,8 +134,15 @@ def addlayer(layer, type_couche, project, qml_file):
                 project.writeEntry('WFSLayers', '',  b)
         return layer
 
+def path_icone(repertoire_sauvegarde,icone):
+   
+    filename = os.path.basename(icone)
+    print("hiiii "+icone)
+    icone_path = repertoire_sauvegarde+"/icons/"+filename
+    print("hi "+ icone_path)
+    return icone_path
 
-def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer_name, type_couche):
+def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer_name, type_couche,icone=""):
 
     # get arguments
 
@@ -179,10 +186,13 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
     project = QgsProject()
     project.read(repertoire_sauvegarde+"/"+path_project+".qgs")
     layer = ""
+    icone_path=""
 
-    shutil.copy(icone, repertoire_sauvegarde +"/icons/")
-    iconname = os.path.basename(icone)
-    icon_path = "./icons/"+iconname
+   
+    if icone != "":
+        print(icone+"jjj")
+        shutil.move(icone,repertoire_sauvegarde +"/icons/")
+
     if(couche_path.endswith(".zip")):
 
         shutil.move(couche_path, repertoire_sauvegarde +
@@ -202,11 +212,13 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
 
                     if len(sys.argv) == 8:
                         
+                        icone_path =  path_icone(repertoire_sauvegarde,icone)
                         layer = addlayer_with_icone(
-                            layer_load, type_couche, project, icon_path, couleur_remplissage)
+                            layer_load, type_couche, project, icone_path, couleur_remplissage)
                     else:
                         layer = addlayer(
-                            layer_load, type_couche, project, qml_file)
+                            layer_load,project, qml_file)
+                        print("herrre")
 
                     layer.saveNamedStyle(
                         repertoire_sauvegarde+"/styles/"+layer_name+".qml")
@@ -218,11 +230,12 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
 
         layer = QgsVectorLayer(couche_path, layer_name, "ogr")
         if len(sys.argv) == 8:
+            icone_path =  path_icone(repertoire_sauvegarde,icone)
             layer = addlayer_with_icone(
-                layer, type_couche, project, icon_path, couleur_remplissage)
+                layer, project, icone_path, couleur_remplissage)
         else:
-            layer = addlayer(layer, type_couche, project, qml_file)
-
+            layer = addlayer(layer, project, qml_file)
+            print("fgggggggggg")
         filename = os.path.basename(couche_path)
 
         layer.saveNamedStyle(repertoire_sauvegarde +
@@ -243,10 +256,11 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             layer = QgsVectorLayer(uri, layer_name, 'ogr')
         # Add layer to map
             if len(sys.argv) == 8:
+                icone_path =  path_icone(repertoire_sauvegarde,icone)
                 layer = addlayer_with_icone(
-                    layer, type_couche, project, icon_path, couleur_remplissage)
+                    layer, type_couche, project, icone_path, couleur_remplissage)
             else:
-                layer = addlayer(layer, type_couche, project, qml_file)
+                layer = addlayer(layer, project, qml_file)
 
             filename = os.path.basename(couche_path)
 
@@ -268,10 +282,11 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
 
             layer = QgsVectorLayer(layer1, layer_name, "ogr")
             if len(sys.argv) == 8:
+                icone_path =  path_icone(repertoire_sauvegarde,icone)
                 layer = addlayer_with_icone(
-                    layer, type_couche, project, icon_path, couleur_remplissage)
+                    layer, type_couche, project, icone_path, couleur_remplissage)
             else:
-                layer = addlayer(layer, type_couche, project, qml_file)
+                layer = addlayer(layer, project, qml_file)
 
             layer.saveNamedStyle(repertoire_sauvegarde +
                                  "/styles/"+layer_name+".qml")
@@ -306,10 +321,11 @@ layer_name = sys.argv[5]
 if(len(sys.argv) == 8):
 
     icone = sys.argv[6]
+    print(icone)
     couleur_remplissage = sys.argv[7]
 
     print(add_layer_to_project(project, repertoire_sauvegarde,
-                               couche, layer_name, type_couche))
+                               couche, layer_name, type_couche,icone))
 
 
 elif(len(sys.argv) == 7):
