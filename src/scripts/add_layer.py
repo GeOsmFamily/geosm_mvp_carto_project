@@ -20,6 +20,87 @@ from qgis.core import QgsVectorFileWriter
 from PIL import ImageColor
 
 
+def getLayerGeometry(layer):
+
+    features = layer.getFeatures()
+
+    for feature in features:
+
+        # retrieve every feature with its geometry and attributes
+
+        #print("Feature ID: ", feature.id())
+
+        # fetch geometry
+
+        # show some information about the feature geometry
+
+        geom = feature.geometry()
+
+        geomSingleType = QgsWkbTypes.isSingleType(geom.wkbType())
+
+        if geom.type() == QgsWkbTypes.PointGeometry:
+
+            # the geometry type can be of single or multi type
+
+            if geomSingleType:
+
+                x = geom.asPoint()
+
+                return "Point"
+
+            else:
+                x = geom.asMultiPoint()
+
+                return "MultiPoint"
+            break
+
+        elif geom.type() == QgsWkbTypes.LineGeometry:
+
+            if geomSingleType:
+
+                x = geom.asPolyline()
+
+                #print("Line: ", x, "length: ", geom.length())
+                return "Line"
+
+            else:
+
+                x = geom.asMultiPolyline()
+
+                #print("MultiLine: ", x, "length: ", geom.length())
+                return "MultiLine"
+            break
+
+        elif geom.type() == QgsWkbTypes.PolygonGeometry:
+
+            if geomSingleType:
+
+                x = geom.asPolygon()
+
+                return "Polygon"
+            else:
+
+                x = geom.asMultiPolygon()
+
+                return "MultiPolygon"
+            break
+
+        else:
+
+            print(json.dumps({"error": "Geometrie invalide"}))
+
+            # fetch attributes
+
+            attrs = feature.attributes()
+
+            # attrs is a list. It contains all the attribute values of this feature
+
+            print(json.dumps({"error": attrs}) )
+
+            # for this test only print the first feature
+
+            break
+
 
 def setPointSymbology(layer, icone, couleur_remplissage):
     symbolLayer = QgsSvgMarkerSymbolLayer(icone, 10)
@@ -98,7 +179,7 @@ def setPointSymbology(layer, icone, couleur_remplissage):
 def addlayer_with_icone(layer,project, icone, couleur_remplissage):
 
     if not layer.isValid():
-        print(json.dumps({"error": "Invalid Layer"}))
+        print(json.dumps({"error": "Erreur de chargement de la couche"}))
     else:
         layer = setPointSymbology(layer, icone, couleur_remplissage)
         if(project.mapLayersByName(layer.name())):
@@ -116,11 +197,12 @@ def addlayer_with_icone(layer,project, icone, couleur_remplissage):
 
 
 def addlayer(layer,project,qml_file):
+
     if not layer.isValid():
         print(json.dumps({"error": "Erreur de chargement de la couche"}))
     else:
+     
         layer.loadNamedStyle(qml_file)
-
         if(project.mapLayersByName(layer.name())):
             print(json.dumps({"error": "Couche existante dans le projet"}))
         else:
@@ -140,10 +222,9 @@ def path_icone(repertoire_sauvegarde,icone):
     icone_path = repertoire_sauvegarde+"/icons/"+filename
     return icone_path
 
-def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer_name, type_couche,icone=""):
+def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer_name,icone="",couleur_remplissage="",qml_file=""):
 
     # get arguments
-
     #layername = sys.argv[4]
     filename = os.path.basename(couche_path)
 
@@ -197,27 +278,27 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
         filename = os.path.basename(couche_path)
         couche_path = repertoire_sauvegarde + "/shapefile/"+filename
         layers = []
-        with zipfile.ZipFile(couche_path) as z:
-            for filename in z.namelist():
+        with zipfile.ZipFile(couche_path) as zip_file:
+            layers = zip_file.namelist()
+            #print(layers)
+        for filename in layers:
 
-                if(filename.endswith('.shp')):
-                    uri = couche_path
-
-                    layer_load = QgsVectorLayer(uri, layer_name, "ogr")
+            
+            if(filename.endswith('.shp')):
+                uri = couche_path
+                layer_load = QgsVectorLayer(uri, layer_name, "ogr")
 
                     # set layer icons
-
-                    if len(sys.argv) == 8:
-                        
-                        icone_path =  path_icone(repertoire_sauvegarde,icone)
-                        layer = addlayer_with_icone(
-                            layer_load, project, icone_path, couleur_remplissage)
-                    else:
-                        layer = addlayer(
+                type_couche = getLayerGeometry(layer_load)
+                if len(sys.argv) == 8 and type_couche == "Point":
+                    icone_path =  path_icone(repertoire_sauvegarde,icone)
+                    layer = addlayer_with_icone(
+                    layer_load,project, icone_path, couleur_remplissage)
+                else:
+                    layer = addlayer(
                             layer_load,project, qml_file)
 
-                    layer.saveNamedStyle(
-                        repertoire_sauvegarde+"/styles/"+layer_name+".qml")
+                    #layer.saveNamedStyle(repertoire_sauvegarde+"/styles/"+layer_name+".qml")
 
     elif(couche_path.endswith(".geojson")):
         shutil.move(couche_path, repertoire_sauvegarde + "/geojson/")
@@ -225,7 +306,8 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
         couche_path = repertoire_sauvegarde + "/geojson/"+filename
 
         layer = QgsVectorLayer(couche_path, layer_name, "ogr")
-        if len(sys.argv) == 8:
+        type_couche = getLayerGeometry(layer)
+        if len(sys.argv) == 8 and type_couche == "Point":
             icone_path =  path_icone(repertoire_sauvegarde,icone)
             layer = addlayer_with_icone(
                 layer, project, icone_path, couleur_remplissage)
@@ -250,10 +332,11 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             # Create layer
             layer = QgsVectorLayer(uri, layer_name, 'ogr')
         # Add layer to map
-            if len(sys.argv) == 8:
+            type_couche = getLayerGeometry(layer)
+            if len(sys.argv) == 8 and type_couche == "Point":
                 icone_path =  path_icone(repertoire_sauvegarde,icone)
                 layer = addlayer_with_icone(
-                    layer, type_couche, project, icone_path, couleur_remplissage)
+                    layer,project, icone_path, couleur_remplissage)
             else:
                 layer = addlayer(layer, project, qml_file)
 
@@ -276,10 +359,11 @@ def add_layer_to_project(path_project, repertoire_sauvegarde, couche_path, layer
             # e.g. gpkg_places_layer = "/usr/share/qgis/resources/data/world_map.gpkg|layername=countries"
 
             layer = QgsVectorLayer(layer1, layer_name, "ogr")
-            if len(sys.argv) == 8:
+            type_couche = getLayerGeometry(layer)
+            if len(sys.argv) == 8 and type_couche == "Point":
                 icone_path =  path_icone(repertoire_sauvegarde,icone)
                 layer = addlayer_with_icone(
-                    layer, type_couche, project, icone_path, couleur_remplissage)
+                    layer,project, icone_path, couleur_remplissage)
             else:
                 layer = addlayer(layer, project, qml_file)
 
@@ -319,13 +403,13 @@ if(len(sys.argv) == 8):
     couleur_remplissage = sys.argv[7]
 
     print(add_layer_to_project(project, repertoire_sauvegarde,
-                               couche, layer_name, type_couche,icone))
+                               couche, layer_name,icone,couleur_remplissage))
 
 
 elif(len(sys.argv) == 7):
     qml_file = sys.argv[6]
-    print(add_layer_to_project(project, repertoire_sauvegarde,
-                               couche, layer_name, type_couche))
+    add_layer_to_project(project, repertoire_sauvegarde,
+                               couche, layer_name,"","",qml_file)
 
 else:
-    print(json.dumps({"error": "nombre d'arguments incorrect"}))
+    json.dumps({"error": "nombre d'arguments incorrect"})
