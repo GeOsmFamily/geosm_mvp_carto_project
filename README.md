@@ -12,11 +12,7 @@ $ cp env.example.json env.json
 
 - Edit env.json to your needs
 - Change host database to your Docker host
-- To see your Docker host run
 
-```
-$ /sbin/ip route|awk '/default/ { print $3 }'
-```
 
 - Save env.json and continue
 
